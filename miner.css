@@ -11,6 +11,11 @@ body {
     
 }
 
+#scores {
+    color: red;
+    background-color: black;
+}
+
 #mineField {
     
 }

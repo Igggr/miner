@@ -1,6 +1,10 @@
-let height = 3; 
-let width = 5;
+let height = 10; 
+let width = 20;
+let ammountOfMines = 0;
+let filledSquare = 0;
+
 let mineField;
+let msgBoard;
 let timeBeetwenClick = 500;  //ms
 let dblClick = false;
 
@@ -12,6 +16,9 @@ const twoDimensionalArray = (x, y) =>
 const fillWithMines = (arr) =>
     arr.forEach( (row, i) => {
        row.forEach( (el, j) => {
+           let placeMine = needMine();
+           if (placeMine)
+              ammountOfMines++;
            row[j] = needMine() ? "X" : 0; 
        });
     });
@@ -46,7 +53,7 @@ const assignDangerLevel = (arr) => {
 }
 
 $(function() {
-    let msgBoard = $("#msgBoard");
+    msgBoard = $("#msgBoard");
     mineField = $("#mineField");
     msgBoard.html("<b>hi<b>");
     newField();
@@ -70,6 +77,7 @@ const newField = () =>
         });
         mineField.append(row);
     });   
+    $("#minesLeft").text(ammountOfMines);
     let squares = mineField.find("span");
     console.log(squares);
     squares.addClass("sq");
@@ -90,8 +98,10 @@ const clickAction = (evt) => {
     console.log(target);
     let danger = target.attr("danger");
     target.text( target.attr("danger") );
-    if (danger === "X")
-       target.css("background-color", "red");   
+    if (danger === "X"){
+       gameOver();
+       target.css("background-color", "red"); 
+    }
     else 
        target.css("background-color", "lightgrey" );  
 }
@@ -105,8 +115,7 @@ const whenDoubleClicked = (evt) => {
 }
 
 
-
-
 const gameOver = () => {
-    
+    msgBoard.text("Game Over");
+    mineField.find("span").trigger("click");
 };
