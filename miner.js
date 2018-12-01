@@ -1,6 +1,8 @@
 let height = 15; 
 let width = 30;
 let mineField;
+let timeBeetwenClick = 200;  //ms
+let dblClick = false;
 
 const needMine = () => Math.random() > 0.8;
 
@@ -28,16 +30,39 @@ const newField = () =>
     let arr = twoDimensionalArray(height, width);
     fillWithMines(arr);
     console.log(arr);
-    arr.forEach( (item) => {
+    arr.forEach( (item, i) => {
         let row = document.createElement("div");
-        item.forEach( (elem) => {
+        item.forEach( (elem, j) => {
             let sq = document.createElement("span");
+            sq.setAttribute("danger", arr[i][j]);
             row.appendChild(sq);
         });
         mineField.append(row);
     });   
-    mineField.find("span").addClass("sq");
+    let squares = mineField.find("span");
+    squares.addClass("sq");
+    squares.click(whenClicked);
+    squares.dblclick(whenDoubleClicked);
 };
+
+const whenClicked = () => {
+    setTimeout(clickAction, timeBeetwenClick);
+     
+}
+
+const clickAction = () => {
+    if (dblClick)
+        return;
+    console.log("click");
+}
+
+const whenDoubleClicked = () => {
+    dblClick = true;
+    console.log("double click");
+    setTimeout(() => dblClick = false, timeBeetwenClick);
+}
+
+
 
 
 const gameOver = () => {
