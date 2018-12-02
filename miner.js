@@ -2,9 +2,11 @@ let height = 10;
 let width = 20;
 let ammountOfMines = 0;
 let filledSquare = 0;
+let firstDetonation = true;
 
 let mineField;
-let msgBoard;
+let msg;
+
 let timeBeetwenClick = 500;  //ms
 let dblClick = false;
 
@@ -45,48 +47,59 @@ const badNeighbors = (arr, i, j) => {
 const assignDangerLevel = (arr) => {
     arr.forEach( (row, i) => {
         row.forEach( (el, j) => {
-            console.log(arr[i][j]);
             badNeighbors(arr, i, j);
-            console.log(arr[i][j]);
         });
     });
 }
 
-$(function() {
-    msgBoard = $("#msgBoard");
+
+
+$(function() {                 // document.onload
+    msg= $("#msg");
     mineField = $("#mineField");
-    msgBoard.html("<b>hi<b>");
-    newField();
+    createNewField(height, width);
     
 });
 
+const setColorAndDanger = (sq, danger) => {
+    sq.setAttribute("danger", danger);
+    if (danger === "X")
+        sq.setAttribute("style", "color: black");
+    else if (danger === 1 || danger === 0)
+        sq.setAttribute("style", "color: blue");
+    else if (danger === 2)
+        sq.setAttribute("style", "color: green");
+    else 
+        sq.setAttribute("style", "color: red");
+};
 
-const newField = () =>
+const createNewField = (height, width) =>
 {
+    ammountOfMines = 0;
+    filledSquare = 0;
     let arr = twoDimensionalArray(height, width);
     fillWithMines(arr);
-    console.log(arr);
     assignDangerLevel(arr);
-    console.log(arr);
     arr.forEach( (item, i) => {
         let row = document.createElement("div");
         item.forEach( (elem, j) => {
-            let sq = document.createElement("span");
-            sq.setAttribute("danger", arr[i][j]);
+            let sq = document.createElement("span");        
+            setColorAndDanger(sq, arr[i][j]);       
             row.appendChild(sq);
         });
         mineField.append(row);
-    });   
+    }); 
+    
     $("#minesLeft").text(ammountOfMines);
+    $("#filled").text(0);
+    
     let squares = mineField.find("span");
-    console.log(squares);
     squares.addClass("sq");
     squares.click(whenClicked);
     squares.dblclick(whenDoubleClicked);
 };
 
 const whenClicked = (evt) => {
-    evt.preventDefault();
     setTimeout( () => clickAction(evt), timeBeetwenClick);    
 }
 
@@ -95,27 +108,53 @@ const clickAction = (evt) => {
         return;
     let target = $(evt.target);
     console.log("click");
-    console.log(target);
-    let danger = target.attr("danger");
+    let danger = target.attr("danger");   
     target.text( target.attr("danger") );
-    if (danger === "X"){
-       gameOver();
-       target.css("background-color", "red"); 
+    if (danger === "X" && firstDetonation){
+            target.css("background-color", "red");  
+            gameOver(target);    
     }
-    else 
-       target.css("background-color", "lightgrey" );  
+    else {
+       target.css("background-color", "lightgrey" );     
+    }
+    if (firstDetonation)
+        showNewFilledAmmount();
 }
+
+const showNewFilledAmmount = () => {
+    filledSquare++;
+    $("#filled").text(filledSquare);
+};
 
 const whenDoubleClicked = (evt) => {
     dblClick = true;
     console.log("double click");
-    console.log(evt.target);
     $(evt.target).css("background-color", "yellow");
     setTimeout(() => dblClick = false, timeBeetwenClick);
 }
 
 
-const gameOver = () => {
-    msgBoard.text("Game Over");
+const gameOver = (target) => {
+    target.off("click");
+    firstDetonation = false;
+    msg.text("Game Over");
     mineField.find("span").trigger("click");
+    makeRestartButton();
 };
+
+const destroyOldField = () => {
+    $("button").remove();
+    msg.empty();                 
+    mineField.empty();        //remove all children, jquery-way
+    firstDetonation = true;
+};
+
+const makeRestartButton = () => {
+    btn = document.createElement("button");
+    btn.innerHTML = 'new game';
+    btn.onclick = () => {
+        destroyOldField();
+        createNewField(height, width);
+    }
+    msg.append(btn);
+}
