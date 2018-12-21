@@ -73,6 +73,11 @@ const setColorAndDanger = (sq, danger) => {
         sq.setAttribute("style", "color: red");
 };
 
+const setCoordinate = (sq, i, j) => {
+    sq.setAttribute("i", i);
+    sq.setAttribute("j", j);
+};
+
 const createNewField = (height, width) =>
 {
     ammountOfMines = 0;
@@ -84,7 +89,8 @@ const createNewField = (height, width) =>
         let row = document.createElement("div");
         item.forEach( (elem, j) => {
             let sq = document.createElement("span");        
-            setColorAndDanger(sq, arr[i][j]);       
+            setColorAndDanger(sq, arr[i][j]); 
+            setCoordinate(sq, i, j);
             row.appendChild(sq);
         });
         mineField.append(row);
@@ -106,15 +112,20 @@ const whenClicked = (evt) => {
 const clickAction = (evt) => {
     if (dblClick)
         return;
-    let target = $(evt.target);
+    
     console.log("click");
+    let target = $(evt.target);
+    target.off("click");
     let danger = target.attr("danger");   
     target.text( target.attr("danger") );
+    
+    if (danger == 0)
+        clickZeroNeighbors(target);
+    
     if (danger === "X" && firstDetonation){
-            //target.css('background-image', "url('./img/bomb.png')");
+            target.css('background-image', "url('./img/bomb.png')");
             target.addClass("minePicture");
-            console.log((target).css('background-image'));
-            //target.css("background-color", "red");  
+            target.css("background-color", "red");  
             gameOver(target);    
     }
     else {
@@ -122,6 +133,8 @@ const clickAction = (evt) => {
     }
     if (firstDetonation)
         showNewFilledAmmount();
+    if (isWinner())
+        win();
 }
 
 const showNewFilledAmmount = () => {
@@ -136,14 +149,40 @@ const whenDoubleClicked = (evt) => {
     setTimeout(() => dblClick = false, timeBeetwenClick);
 }
 
+const clickZeroNeighbors = (zeroSq) => {
+    let i = zeroSq.attr('i');
+    let j = zeroSq.attr('j');
+    console.log(`square on ${i}, ${j}, let's click neighbors`);
+    //mineField.find(".sq").first();
+    mineField.find(".sq").each( function(){
+        let ii = $(this).attr("i");
+        let jj = $(this).attr("j");
+        console.log(`fellow square on ${ii}, ${jj}`);
+        if (Math.abs(ii-i)<=1 && Math.abs(jj-j)<=1)
+            $(this).click();
+    });
+};
+
 
 const gameOver = (target) => {
-    target.off("click");
     firstDetonation = false;
     msg.text("Game Over");
     mineField.find("span").trigger("click");
-    makeRestartButton();
+    gameWaitNewRound();
 };
+
+const isWinner = () => height*width - filledSquare == ammountOfMines;
+
+const win = () => {
+    msg.text("Your win!");
+    gameWaitNewRound();
+}
+
+const gameWaitNewRound = () => {
+    mineField.find("span").off("click");
+    mineField.find("span").off("dblclick");
+    makeRestartButton();
+}
 
 const destroyOldField = () => {
     $("button").remove();
