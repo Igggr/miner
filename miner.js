@@ -111,7 +111,10 @@ const clickAction = (evt) => {
     let danger = target.attr("danger");   
     target.text( target.attr("danger") );
     if (danger === "X" && firstDetonation){
-            target.css("background-color", "red");  
+            //target.css('background-image', "url('./img/bomb.png')");
+            target.addClass("minePicture");
+            console.log((target).css('background-image'));
+            //target.css("background-color", "red");  
             gameOver(target);    
     }
     else {

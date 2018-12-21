@@ -21,11 +21,18 @@ body {
     
 }
 
+.minePicture {
+    background-image: url('./img/bomb.png');
+    height: 100%;
+    width: 100%;
+}
+
 div {
     height: 22px;
 }
 
 .sq {
+    vertical-align: top;
     display: inline-block;
     height: 20px;
     width: 20px;
